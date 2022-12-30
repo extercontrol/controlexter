@@ -25,13 +25,13 @@
             <label for="localidad">Localidad: </label> <input type="text" id="localidad" :value="localidad" @input="(event) => $emit('update:localidad', event.target.value)"><br>
             <label for="fecha">Fecha: </label> <input type="text" id="fecha" :value="fecha" @input="(event) => $emit('update:fecha', event.target.value)"><br>
             <label for="tipo_tratamiento">Tipo de tratamiento:</label>
-            <select name="tipo_tratamiento" id="tipo_tratamiento" v-model="tipo_tratamiento_seleccionado">
+            <select name="tipo_tratamiento" id="tipo_tratamiento" v-model="innerTipoTratamiento" @change="(event) => $emit('change:tipoTratamiento', innerTipoTratamiento)">
               <option value="fumigacion">Fumigación</option>
               <option value="desinfeccion">Desinfección</option>
             </select><br>
             <label for="productos">Productos: </label><br>
-            <select name="productos" id="productos" multiple="multiple" v-model="productosSelected" @change="(event) => $emit('update:productos', this.productosSelected.map(x => this.lista_productos['fumigacion'][x]))">
-              <option v-for="(value, key, index) in lista_productos[tipo_tratamiento_seleccionado]" :value="key">{{value['producto']}}</option>
+            <select name="productos" id="productos" multiple="multiple" v-model="innerProductosSelected" @change="(event) => $emit('change:productosSelected', innerProductosSelected)">
+              <option v-for="(value, key, index) in lista_productos[innerTipoTratamiento]" :value="key">{{value['producto']}}</option>
             </select>
             <br>
             <label for="dosis">Dosis: </label> <input type="text" id="dosis" placeholder="Separadas por comas" inputmode="numeric" :value="dosis" @input="(event) => $emit('update:dosis', event.target.value)"><span>ml/L</span><br>
@@ -78,6 +78,10 @@
         type: Array,
         default: [],
       },
+      productosSelected: {
+        type: Array,
+        default: [],
+      },
       dosis: {
         type: String,
         default: "",
@@ -91,8 +95,8 @@
     data() {
       return {
         index: null,
-        tipo_tratamiento_seleccionado: "",
-        productosSelected: [],
+        innerTipoTratamiento: this.tipoTratamiento,
+        innerProductosSelected: this.productosSelected,
         lista_productos : {
           fumigacion : {
             "0": {producto: 'Tiametoxam', registro: 'REGISTRO COFEPRIS DE PRODUCTO: RSCO-URB-INAC-102U-315-064-21'},
@@ -118,8 +122,8 @@
       }
     },
     mounted() {
-      this.tipo_tratamiento_seleccionado = (' ' + this.tipoTratamiento).slice(1);
-      this.productosSelected = this.productos;
+      //this.tipo_tratamiento_seleccionado = (' ' + this.tipoTratamiento).slice(1);
+      //this.productosSelected = this.productos;
     },
     methods: {
       open() {
@@ -139,12 +143,18 @@
     created() {
       this.index = this.Accordion.count++;
     },
-    /*watch: {
-      productosSelected: function () {
+    watch: {
+      /*innerProductosSelected: function () {
         console.log(`productosSelected() : ${this.productosSelected.map(x => this.lista_productos['fumigacion'][x])}`);
         this.$emit('productosSeleccionadosChanged', {seleccionados : this.productosSelected.map(x => this.lista_productos['fumigacion'][x]), indice: this.indice});
-      }
-    }*/
+      }*/
+      tipoTratamiento: function(newVal){this.innerTipoTratamiento = newVal},
+      productosSelected: function(newVal){
+        this.innerProductosSelected = newVal;
+        console.log(this.innerProductosSelected, this.tipoTratamiento);
+        this.$emit('productosSeleccionadosChanged', this.innerProductosSelected.map(x => this.lista_productos[this.tipoTratamiento][x]));
+      },
+    }
   };
   </script>
   

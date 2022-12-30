@@ -23,16 +23,16 @@
             <label for="localidad"><input type="checkbox" id="localidad" value="localidad" v-model="camposSeleccionados">Localidad: </label> <input type="text" id="localidad" v-model="valoresCampos.localidad"><br>
             <label for="fecha"><input type="checkbox" id="fecha" value="fecha" v-model="camposSeleccionados">Fecha: </label> <input type="text" id="fecha" v-model="valoresCampos.fecha"><br>
             <label for="tipo_tratamiento"><input type="checkbox" id="productos" value="productos" v-model="camposSeleccionados">Tipo de tratamiento:</label>
-            <select name="tipo_tratamiento" id="tipo_tratamiento" v-model="tipo_tratamiento_seleccionado">
+            <select name="tipo_tratamiento" id="tipo_tratamiento" v-model="valoresCampos.tipoTratamiento">
               <option value="fumigacion">Fumigación</option>
               <option value="desinfeccion">Desinfección</option>
             </select><br>
             <label for="productos">Productos: </label><br>
             <select name="productos" id="productos" multiple="multiple" v-model="valoresCampos.productosSelected">
-              <option v-for="(value, key, index) in lista_productos[tipo_tratamiento_seleccionado]" :value="key">{{value['producto']}}</option>
+              <option v-for="(value, key, index) in lista_productos[valoresCampos.tipoTratamiento]" :value="key">{{value['producto']}}</option>
             </select>
             <br>
-            <label for="dosis">Dosis: </label> <input type="text" id="dosis" placeholder="Separadas por comas" inputmode="numeric"><span>ml/L</span><br>
+            <label for="dosis">Dosis: </label> <input type="text" id="dosis" placeholder="Separadas por comas" inputmode="numeric" v-model="valoresCampos.dosis"><span>ml/L</span><br>
             <label for="areas"><input type="checkbox" id="areas" value="areas" v-model="camposSeleccionados">Áreas: </label><br><textarea name="areas" id="areas" cols="30" rows="2" v-model="valoresCampos.areas"></textarea>
           </ul>
         </div>
@@ -77,8 +77,7 @@
     data() {
       return {
         index: null,
-        tipo_tratamiento_seleccionado: "",
-        camposSeleccionados: ['fecha'],
+        camposSeleccionados: [],
         valoresCampos:{
             cliente: "",
             domicilio: "",
@@ -87,6 +86,8 @@
             areas: "",
             productos: [],
             productosSelected: [],
+            tipoTratamiento: "",
+            dosis: "",
         },
         lista_productos : {
           fumigacion : {
@@ -113,7 +114,7 @@
       }
     },
     mounted() {
-      this.tipo_tratamiento_seleccionado = (' ' + this.tipo_tratamiento).slice(1);
+      this.valoresCampos.tipoTratamiento = (' ' + this.tipo_tratamiento).slice(1);
       this.valoresCampos.fecha = this.getDates();
     },
     methods: {
@@ -154,8 +155,8 @@
     },
     watch: {
         camposSeleccionados: function () {
-            this.valoresCampos.productos = this.valoresCampos.productosSelected.map(x => this.lista_productos[this.tipo_tratamiento_seleccionado][x]);
-            this.$emit('camposSeleccionadosChanged', {campos : this.camposSeleccionados, valores: this.valoresCampos});
+          this.valoresCampos.productos = this.valoresCampos.productosSelected.map(x => this.lista_productos[this.valoresCampos.tipoTratamiento][x]);
+          this.$emit('camposSeleccionadosChanged', {campos : this.camposSeleccionados, valores: this.valoresCampos});
         }
     }
   };

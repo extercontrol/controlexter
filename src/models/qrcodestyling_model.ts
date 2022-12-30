@@ -1,11 +1,13 @@
 import QRCodeStyling from "qr-code-styling";
 
+
 const qrCodeF = (url : string) => new QRCodeStyling({
     "width": 300,
     "height": 300,
     "data": url,
     "margin": 0,
     "qrOptions": {
+        // @ts-ignore
         "typeNumber": "0",
         "mode": "Byte",
         "errorCorrectionLevel": "Q"
@@ -14,11 +16,13 @@ const qrCodeF = (url : string) => new QRCodeStyling({
         "hideBackgroundDots": true,
         "imageSize": 0.4,
         "margin": 0,
+        // @ts-ignore
         "saveAsBlob": true
     },
     "dotsOptions": {
         "type": "square",
         "color": "#000000",
+        // @ts-ignore
         "gradient": null
     },
     "backgroundOptions": {
