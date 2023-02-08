@@ -19,23 +19,23 @@
         <div class="accordion__content"
           v-show="visible">
           <ul>
-            <label for="nuevo-folio">Nuevo folio: </label> <input type="text" id="nuevo-folio" :value="folio" @input="(event) => $emit('update:folio', event.target.value)" ><br>
-            <label for="cliente">Cliente: </label> <input type="text" id="cliente" :value="cliente" @input="(event) => $emit('update:cliente', event.target.value)"><br>
-            <label for="domicilio">Domicilio: </label> <input type="text" id="domicilio" :value="domicilio" @input="(event) => $emit('update:domicilio', event.target.value)"><br>
-            <label for="localidad">Localidad: </label> <input type="text" id="localidad" :value="localidad" @input="(event) => $emit('update:localidad', event.target.value)"><br>
-            <label for="fecha">Fecha: </label> <input type="text" id="fecha" :value="fecha" @input="(event) => $emit('update:fecha', event.target.value)"><br>
+            <label for="nuevo-folio">Nuevo folio: </label> <input type="text" id="nuevo-folio" :value="folio" @input="(event) => $emit('update:folio', (event.target as HTMLInputElement).value)" ><br>
+            <label for="cliente">Cliente: </label> <input type="text" id="cliente" :value="cliente" @input="(event) => $emit('update:cliente', (event.target as HTMLInputElement).value)"><br>
+            <label for="domicilio">Domicilio: </label> <input type="text" id="domicilio" :value="domicilio" @input="(event) => $emit('update:domicilio', (event.target as HTMLInputElement).value)"><br>
+            <label for="localidad">Localidad: </label> <input type="text" id="localidad" :value="localidad" @input="(event) => $emit('update:localidad', (event.target as HTMLInputElement).value)"><br>
+            <label for="fecha">Fecha: </label> <input type="text" id="fecha" :value="fecha" @input="(event) => $emit('update:fecha', (event.target as HTMLInputElement).value)"><br>
             <label for="tipo_tratamiento">Tipo de tratamiento:</label>
             <select name="tipo_tratamiento" id="tipo_tratamiento" v-model="innerTipoTratamiento" @change="(event) => $emit('change:tipoTratamiento', innerTipoTratamiento)">
               <option value="fumigacion">Fumigación</option>
               <option value="desinfeccion">Desinfección</option>
             </select><br>
             <label for="productos">Productos: </label><br>
-            <select name="productos" id="productos" multiple="multiple" v-model="innerProductosSelected" @change="(event) => $emit('change:productosSelected', innerProductosSelected)">
-              <option v-for="(value, key, index) in lista_productos[innerTipoTratamiento]" :value="key">{{value['producto']}}</option>
+            <select name="productos" id="productos" multiple="true" v-model="innerProductosSelected" @change="(event) => $emit('change:productosSelected', innerProductosSelected)">
+              <option v-for="(value, key, index) in lista_productos[innerTipoTratamiento as keyof typeof lista_productos]" :value="key">{{value['producto']}}</option>
             </select>
             <br>
-            <label for="dosis">Dosis: </label> <input type="text" id="dosis" placeholder="Separadas por comas" inputmode="numeric" :value="dosis" @input="(event) => $emit('update:dosis', event.target.value)"><span>ml/L</span><br>
-            <label for="areas">Áreas: </label><br><textarea name="areas" id="areas" cols="30" rows="2" :value="areas" @input="(event) => $emit('update:areas', event.target.value)"></textarea>
+            <label for="dosis">Dosis: </label> <input type="text" id="dosis" placeholder="Separadas por comas" inputmode="numeric" :value="dosis" @input="(event) => $emit('update:dosis', (event.target as HTMLInputElement).value)"><span>ml/L</span><br>
+            <label for="areas">Áreas: </label><br><textarea name="areas" id="areas" cols="30" rows="2" :value="areas" @input="(event) => $emit('update:areas', (event.target as HTMLInputElement).value)"></textarea>
           </ul>
         </div>
       </transition>
@@ -43,7 +43,7 @@
   </template>
   
   
-  <script>
+  <script lang="ts">
   export default { //v-model="productosSelected"
     props: {
       indice: {
@@ -79,7 +79,7 @@
         default: [],
       },
       productosSelected: {
-        type: Array,
+        type: Array<string>,
         default: [],
       },
       dosis: {
@@ -94,7 +94,7 @@
     inject: ["Accordion"],
     data() {
       return {
-        index: null,
+        index: 0,
         innerTipoTratamiento: this.tipoTratamiento,
         innerProductosSelected: this.productosSelected,
         lista_productos : {
@@ -118,7 +118,7 @@
     },
     computed: {
       visible() {
-        return this.index == this.Accordion.active;
+        return this.index == (this.Accordion as any).active;
       }
     },
     mounted() {
@@ -128,20 +128,20 @@
     methods: {
       open() {
         if (this.visible) {
-          this.Accordion.active = null;
+          (this.Accordion as any).active = null;
         } else {
-          this.Accordion.active = this.index;
+          (this.Accordion as any).active = this.index;
         }
       },
-      start(el) {
+      start(el: any) {
         el.style.height = el.scrollHeight + "px";
       },
-      end(el) {
+      end(el: any) {
         el.style.height = "";
       },
     },
     created() {
-      this.index = this.Accordion.count++;
+      this.index = (this.Accordion as any).count++;
     },
     watch: {
       /*innerProductosSelected: function () {
@@ -152,7 +152,8 @@
       productosSelected: function(newVal){
         this.innerProductosSelected = newVal;
         console.log(this.innerProductosSelected, this.tipoTratamiento);
-        this.$emit('productosSeleccionadosChanged', this.innerProductosSelected.map(x => this.lista_productos[this.tipoTratamiento][x]));
+        // @ts-ignore
+        this.$emit('productosSeleccionadosChanged', this.innerProductosSelected.map((x) => this.lista_productos[this.tipoTratamiento][x]));
       },
     }
   };

@@ -1,5 +1,8 @@
 <script lang="ts">
+import { defineComponent } from 'vue'
+
 import Accordion from "./components/Accordion.vue";
+//import Login from "./components/Login.vue";
 import AccordionItem from "./components/AccordionItem.vue";
 import CamposComunes from "./components/CamposComunes.vue";
 import axios, { isCancel, AxiosError } from 'axios';
@@ -23,12 +26,13 @@ interface Certificado {
   tratamiento: string;
 };
 
-export default {
+export default defineComponent({
   name: "App",
   components: {
     Accordion,
     AccordionItem,
-    CamposComunes
+    CamposComunes,
+    //Login
   },
   data() {
     return {
@@ -50,7 +54,7 @@ export default {
   },
   methods: {
     async creaDocumento(datos: any) {
-      const template = await fetch('/plantilla_certificado.docx').then(res => res.arrayBuffer());
+      const template = await fetch('/control-exter/plantilla_certificado.docx').then(res => res.arrayBuffer());
       let data = await this.generateQR(datos.short_url).then((value) => value);
       console.log(data);
       data = data.split(';base64,')[1];
@@ -94,19 +98,21 @@ export default {
     obtieneFolio(index: number): string {
       let numero: number = parseInt(this.folioInicial.split('-')[0]);
       let anio: number = parseInt(this.folioInicial.split('-')[1]);
-      this.dataCerts[index].folio = `${numero + index}-${anio}`;
-      return `${numero + index}-${anio}`;
+      this.dataCerts[index].folio = `${("000"+(numero + index)).substring((numero + index).toString().length)}-${anio}`;
+      return `${("000"+(numero + index)).substring((numero + index).toString().length)}-${anio}`;
     },
     obtieneInfoCerts() {
       if (this.listaCerts === "") return;
-      axios.get('https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxX9BpWftZWtyXxOGsIW3PTVlpXLq1Xl4m9VpQxAjUolFlK3fxTqUSE38FdTwxx6aBw/exec', {
+      axios.get('https://script.google.com/macros/s/AKfycbxX9BpWftZWtyXxOGsIW3PTVlpXLq1Xl4m9VpQxAjUolFlK3fxTqUSE38FdTwxx6aBw/exec?callback=?', {
         params: {
           ids: `[${this.prepararBusqueda(this.listaCerts)}]`
         },
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin' : '*',
+          "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
           'Access-Control-Allow-Credentials': 'true',
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain;charset=utf-8',
         },
       }).then(response => {
         console.log(response.data);
@@ -136,12 +142,13 @@ export default {
           let anio: string = range.split("&")[1].split("-")[1];
 
           for (inicio; inicio <= fin; inicio++) {
-            resultado.push(`"${inicio + "-" + anio}"`);
+            resultado.push(`"${("000"+inicio).substring(inicio.toString().length) + "-" + anio}"`);
           }
           continue;
         }
         resultado.push(`"${range}"`);
       }
+      console.log(resultado.toString());
       return resultado.toString();
     },
 
@@ -250,10 +257,11 @@ export default {
       });
     }
   },
-};
+});
 </script>
 
 <template>
+  <!--Login /-->
   <img src="./assets/controlExter_logo.svg" alt="" id="logo">
   <h1>Certificados 0.1</h1>
 

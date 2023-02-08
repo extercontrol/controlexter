@@ -4,9 +4,9 @@
     </ul>
   </template>
   
-  <script>
-  export default {
-    props: {},
+  <script lang="ts">
+  import { defineComponent } from 'vue'
+  export default defineComponent({
     data() {
       return {
         Accordion: {
@@ -18,7 +18,7 @@
     provide() {
       return { Accordion: this.Accordion };
     }
-  };
+  });
   </script>
   
   <style lang="css" scoped>

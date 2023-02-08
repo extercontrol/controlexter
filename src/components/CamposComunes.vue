@@ -28,8 +28,8 @@
               <option value="desinfeccion">Desinfección</option>
             </select><br>
             <label for="productos">Productos: </label><br>
-            <select name="productos" id="productos" multiple="multiple" v-model="valoresCampos.productosSelected">
-              <option v-for="(value, key, index) in lista_productos[valoresCampos.tipoTratamiento]" :value="key">{{value['producto']}}</option>
+            <select name="productos" id="productos" multiple="true" v-model="valoresCampos.productosSelected">
+              <option v-for="(value, key, index) in lista_productos[valoresCampos.tipoTratamiento as keyof typeof lista_productos]" :value="key">{{value['producto']}}</option>
             </select>
             <br>
             <label for="dosis">Dosis: </label> <input type="text" id="dosis" placeholder="Separadas por comas" inputmode="numeric" v-model="valoresCampos.dosis"><span>ml/L</span><br>
@@ -41,8 +41,9 @@
   </template>
   
   
-  <script>
-  export default {
+  <script lang="ts">
+  import { defineComponent } from 'vue'
+  export default ({
     props: {
       cliente: {
         type: String,
@@ -76,7 +77,7 @@
     inject: ["Accordion"],
     data() {
       return {
-        index: null,
+        index: 0,
         camposSeleccionados: [],
         valoresCampos:{
             cliente: "",
@@ -84,7 +85,7 @@
             localidad: "",
             fecha: "",
             areas: "",
-            productos: [],
+            productos: [] as Array<any>,
             productosSelected: [],
             tipoTratamiento: "",
             dosis: "",
@@ -110,7 +111,7 @@
     },
     computed: {
       visible() {
-        return this.index == this.Accordion.active;
+        return this.index == (this.Accordion as any).active;
       }
     },
     mounted() {
@@ -120,15 +121,15 @@
     methods: {
       open() {
         if (this.visible) {
-          this.Accordion.active = null;
+          (this.Accordion as any).active = null;
         } else {
-          this.Accordion.active = this.index;
+          (this.Accordion as any).active = this.index;
         }
       },
-      start(el) {
+      start(el: any) {
         el.style.height = el.scrollHeight + "px";
       },
-      end(el) {
+      end(el: any) {
         el.style.height = "";
       },
       getDates(){
@@ -151,15 +152,16 @@
       }
     },
     created() {
-      this.index = this.Accordion.count++;
+      this.index = (this.Accordion as any).count++;
     },
     watch: {
         camposSeleccionados: function () {
+          // @ts-ignore
           this.valoresCampos.productos = this.valoresCampos.productosSelected.map(x => this.lista_productos[this.valoresCampos.tipoTratamiento][x]);
           this.$emit('camposSeleccionadosChanged', {campos : this.camposSeleccionados, valores: this.valoresCampos});
         }
     }
-  };
+  });
   </script>
   
   <style lang="css" scoped>
