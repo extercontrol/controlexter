@@ -108,6 +108,7 @@
             "8": {producto: 'Difetialona De Uso Urbano', registro: 'REGISTRO COFEPRIS DE PRODUCTO: RSCO-URB-RODE-516-00-07-0.0025'},
             "9": {producto: 'Deltametrina', registro: 'REGISTRO COFEPRIS DE PRODUCTO: RSCO-URB-INAC-119-313-008-2.5'},
             "10": {producto: 'Cipermetrina + Imidacloprid', registro: 'REGISTRO COFEPRIS DE PRODUCTO: RSCO-MEZC-INAC-1155-X0011-425-27.66'},
+            "11": {producto: 'Deltametrina (K Obiol)', registro: 'REGISTRO COFEPRIS DE PRODUCTO: RSCO-INAC-0119-004-009-003'},
           },
           desinfeccion : {
             "5": {producto: 'Pharmagreen (Didecil Dimetil Cloruro De Amonio)', registro: 'REGISTRO NSF No. 155195'},
