@@ -99,10 +99,13 @@ export default {
     },
     obtieneInfoCerts() {
       if (this.listaCerts === "") return;
-      axios.get('https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxX9BpWftZWtyXxOGsIW3PTVlpXLq1Xl4m9VpQxAjUolFlK3fxTqUSE38FdTwxx6aBw/exec', {
-        params: {
-          ids: `[${this.prepararBusqueda(this.listaCerts)}]`
-        },
+      //let getUrl = 'https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxX9BpWftZWtyXxOGsIW3PTVlpXLq1Xl4m9VpQxAjUolFlK3fxTqUSE38FdTwxx6aBw/exec';
+      let getUrl = 'https://certificados-old.onrender.com/appscript/getdata';
+      let encodedData = JSON.stringify(this.prepararBusqueda(this.listaCerts));
+      encodedData = encodeURIComponent(encodedData.replaceAll('\\"',''));
+      const urlWithParams = getUrl + "?data=" + encodedData;
+      console.log(urlWithParams);
+      axios.get(urlWithParams, {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Credentials': 'true',
@@ -142,7 +145,7 @@ export default {
         }
         resultado.push(`"${range}"`);
       }
-      return resultado.toString();
+      return resultado;
     },
 
     actualizaCamposComunes(campos: { campos: Array<keyof Certificado>; valores: any }) {
@@ -212,10 +215,13 @@ export default {
       }
       console.log(JSON.stringify(certificadosARegistrar));
 
-      axios.post('https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxwT4aWTalaghbJhxfi3GMBRjSJRjwFmgmDNOU1Nw0-jWH-aivh07kLPmwCaW5D6wOr/exec', {}, {
-        params: {
-          data: JSON.stringify(certificadosARegistrar)
-        },
+      //let postUrl = 'https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxwT4aWTalaghbJhxfi3GMBRjSJRjwFmgmDNOU1Nw0-jWH-aivh07kLPmwCaW5D6wOr/exec';
+      let postUrl = 'https://certificados-old.onrender.com/appscript/submitdata';
+      let encodedData = JSON.stringify(certificadosARegistrar);
+      encodedData = encodeURIComponent(encodedData.replaceAll('\\"',''));
+      const urlWithParams = postUrl + "?data=" + encodedData;
+      console.log(urlWithParams);
+      axios.post(urlWithParams, {}, {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Credentials': 'true',
