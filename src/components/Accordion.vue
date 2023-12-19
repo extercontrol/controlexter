@@ -6,7 +6,16 @@
   
   <script>
   export default {
-    props: {},
+    props: {
+      count: {
+        type: Number,
+        default: 0,
+      },
+      active: {
+        type: [Number, null], // Allow null
+        default: null,
+      },
+    },
     data() {
       return {
         Accordion: {
