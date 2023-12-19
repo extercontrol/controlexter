@@ -1,4 +1,5 @@
 <script lang="ts">
+import { ref, onMounted } from 'vue';
 import Accordion from "./components/Accordion.vue";
 import AccordionItem from "./components/AccordionItem.vue";
 import CamposComunes from "./components/CamposComunes.vue";
@@ -8,6 +9,13 @@ import md5 from 'md5'
 import { qrCodeF } from "./models/qrcodestyling_model";
 // @ts-ignore
 import { createReport } from 'https://unpkg.com/docx-templates/lib/browser.js';
+
+const baseURL = ref('');
+
+onMounted(() => {
+  // Accessing base URL from import.meta
+  baseURL.value = import.meta.env.BASE_URL;
+});
 
 interface Certificado {
   areas: string;
@@ -50,7 +58,7 @@ export default {
   },
   methods: {
     async creaDocumento(datos: any) {
-      const template = await fetch('/plantilla_certificado.docx').then(res => res.arrayBuffer());
+      const template = await fetch(baseURL.value + 'plantilla_certificado.docx').then(res => res.arrayBuffer());
       let data = await this.generateQR(datos.short_url).then((value) => value);
       console.log(data);
       data = data.split(';base64,')[1];
