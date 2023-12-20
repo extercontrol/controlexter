@@ -38,6 +38,9 @@ export default {
     AccordionItem,
     CamposComunes
   },
+  mounted(){
+    this.obtieneUltimoFolio();
+  },
   data() {
     return {
       res: '',
@@ -54,6 +57,7 @@ export default {
         dosis: "",*/
         areas: "",
       },
+      color: "red",
     }
   },
   methods: {
@@ -262,20 +266,45 @@ export default {
         };
         reader.readAsDataURL(blobQr!);
       });
-    }
+    },
+    obtieneUltimoFolio() {
+      let getUrl = 'https://certificados-old.onrender.com/appscript/getlast';
+      axios.get(getUrl, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': 'true',
+          'Content-Type': 'application/json',
+        },
+      }).then(response => {
+        console.log(response.data);
+        const folioInicialArr = response.data["last_folio"].split("-");
+        this.folioInicial = `${parseInt(folioInicialArr[0])+1}-${folioInicialArr[1]}`;
+        this.color = "green";
+      }).catch(e => {
+        console.log(e);
+      })
+    },
+  },
+  computed: {
+    spanStyle() {
+      return {
+        color: this.color,
+        // Add more style properties as needed
+      };
+    },
   },
 };
 </script>
 
 <template>
   <img src="./assets/controlExter_logo.svg" alt="" id="logo">
-  <h1>Certificados 0.1</h1>
+  <h1>Certificados 0.1 <span :style="spanStyle">⬤</span></h1>
 
   <fieldset id="buscador-fields">
     <label for="buscador">Generar a partir de: </label>
     <input type="text" placeholder="Usa / como rango y , como separador" id="buscador" name="buscador"
       v-model="listaCerts">
-    <label for="folio_inicial">Folio inicial:: </label>
+    <label for="folio_inicial">Folio inicial: </label>
     <input type="text" placeholder="nnn-AAAA" id="folio_inicial" name="folio_inicial" v-model="folioInicial">
     <button type="submit" @click="obtieneInfoCerts"><span class="mdi mdi-magnify"></span> Buscar</button>
   </fieldset>
