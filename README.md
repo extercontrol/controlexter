@@ -1,6 +1,6 @@
 # Consumidor de apis de appscript de control-exter
 
-Esta API actúa como puente entre el frontend y las apis de appscript que controlan el documento de drive donde se guardan los certificados. Originalmente hecha por el tema de CORS.
+Frontend para la creación de certificados usando apis de appscript y google docs
 
 ## Instalación
 
