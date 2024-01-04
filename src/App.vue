@@ -58,6 +58,8 @@ export default {
         areas: "",
       },
       color: "red",
+      isGeneratingCerts: false,
+      loading: false,
     }
   },
   methods: {
@@ -106,13 +108,14 @@ export default {
     obtieneFolio(index: number): string {
       let numero: number = parseInt(this.folioInicial.split('-')[0]);
       let anio: number = parseInt(this.folioInicial.split('-')[1]);
-      this.dataCerts[index].folio = `${numero + index}-${anio}`;
-      return `${numero + index}-${anio}`;
+      this.dataCerts[index].folio = `${String(numero + index).padStart(3, '0')}-${anio}`;
+      return `${String(numero + index).padStart(3, '0')}-${anio}`;
     },
     obtieneInfoCerts() {
       if (this.listaCerts === "") return;
       //let getUrl = 'https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxX9BpWftZWtyXxOGsIW3PTVlpXLq1Xl4m9VpQxAjUolFlK3fxTqUSE38FdTwxx6aBw/exec';
       let getUrl = 'https://certificados-old.onrender.com/appscript/getdata';
+      //let getUrl = 'http://localhost:8080/appscript/getdata';
       let encodedData = JSON.stringify(this.prepararBusqueda(this.listaCerts));
       encodedData = encodeURIComponent(encodedData.replaceAll('\\"',''));
       const urlWithParams = getUrl + "?data=" + encodedData;
@@ -176,8 +179,10 @@ export default {
     },
 
     async generaCertificados() {
+      //Disable button
+      this.isGeneratingCerts = true;
+      this.loading = true;
 
-      //return;
       let textoTratamientos: { fumigacion: string, desinfeccion: string } = {
         fumigacion: "TRATAMIENTO CORRECTIVO Y PREVENTIVO PARA PLAGAS RASTRERAS Y VOLADORAS. SE APLICÓ: " as string,
         desinfeccion: "TRATAMIENTO CORRECTIVO Y PREVENTIVO DE DESINFECCIÓN PARA BACTERIAS, VIRUS, ALGAS Y HONGOS. SE APLICÓ: " as string
@@ -224,11 +229,13 @@ export default {
             certificadosARegistrar.push([hash, cert.folio, cert.cliente, cert.domicilio, cert.localidad, cert.fecha, texto.toUpperCase(), cert.areas, timestamp, data.link]);
             console.log(data);
           });
+          //certificadosARegistrar.push([hash, cert.folio, cert.cliente, cert.domicilio, cert.localidad, cert.fecha, texto.toUpperCase(), cert.areas, timestamp, "example.com"]);
       }
       console.log(JSON.stringify(certificadosARegistrar));
 
       //let postUrl = 'https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxwT4aWTalaghbJhxfi3GMBRjSJRjwFmgmDNOU1Nw0-jWH-aivh07kLPmwCaW5D6wOr/exec';
       let postUrl = 'https://certificados-old.onrender.com/appscript/submitdata';
+      //let postUrl = 'http://localhost:8080/appscript/submitdata';
       let encodedData = JSON.stringify(certificadosARegistrar);
       encodedData = encodeURIComponent(encodedData.replaceAll('\\"',''));
       const urlWithParams = postUrl + "?data=" + encodedData;
@@ -244,10 +251,14 @@ export default {
       }).catch(e => {
         console.log(e);
       })
-
+      
       for (let cert of certificadosARegistrar) {
         this.creaDocumento({ folio: cert[1], cliente: cert[2], domicilio: cert[3], localidad: cert[4], fecha: cert[5], tratamiento: cert[6], areas: cert[7], short_url: cert[9] });
       }
+
+      //Returns button to enabled
+      this.isGeneratingCerts = false;
+      this.loading = false;
     },
     async generateQR(url: string) {
       const qrCode = qrCodeF(url);
@@ -269,6 +280,7 @@ export default {
     },
     obtieneUltimoFolio() {
       let getUrl = 'https://certificados-old.onrender.com/appscript/getlast';
+      //let getUrl = 'http://localhost:8080/appscript/getlast';
       axios.get(getUrl, {
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -278,7 +290,7 @@ export default {
       }).then(response => {
         console.log(response.data);
         const folioInicialArr = response.data["last_folio"].split("-");
-        this.folioInicial = `${parseInt(folioInicialArr[0])+1}-${folioInicialArr[1]}`;
+        this.folioInicial = `${String(parseInt(folioInicialArr[0])+1).padStart(3, '0')}-${folioInicialArr[1]}`;
         this.color = "green";
       }).catch(e => {
         console.log(e);
@@ -336,8 +348,16 @@ export default {
     </Accordion>
   </div>
 
-  <button id="boton-generar" @click="generaCertificados" type="submit"><span
+  <button id="boton-generar" @click="generaCertificados" type="submit" v-bind:disabled="isGeneratingCerts"><span
       class="mdi mdi-file-sign"></span>Generar</button>
+  
+  <!-- Loading popup -->
+  <div v-if="loading" class="loading-popup">
+        <div class="loading-content">
+            <img src="./assets/bee.gif" alt="Loading">
+            <p>Generando...</p>
+        </div>
+    </div>
 
 </template>
 
@@ -374,6 +394,25 @@ label {
 #logo {
   width: 350px;
 }
+
+.loading-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999; /* Ensure the loading popup is on top of other elements */
+    }
+
+    .loading-content {
+        text-align: center;
+        color: #005512;
+        font-weight: 800;
+    }
 
 @media (max-width:767px) {
   #logo {
