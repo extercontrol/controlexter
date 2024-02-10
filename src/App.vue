@@ -154,7 +154,7 @@ export default {
           let anio: string = range.split("&")[1].split("-")[1];
 
           for (inicio; inicio <= fin; inicio++) {
-            resultado.push(`"${inicio + "-" + anio}"`);
+            resultado.push(`"${String(inicio).padStart(3, '0') + "-" + anio}"`);
           }
           continue;
         }
