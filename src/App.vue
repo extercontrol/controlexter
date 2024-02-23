@@ -40,9 +40,11 @@ export default {
   },
   mounted(){
     this.obtieneUltimoFolio();
+    console.log("%c%s", "background: linear-gradient(0deg, #026000 0%, #27b100 100%);margin: 10px;padding: 10px;color: white;text-align: center;", `Control Exter v. ${this.appVersion}`)
   },
   data() {
     return {
+      appVersion: '0.2.2',
       res: '',
       folioInicial: "" as string,
       listaCerts: "",
@@ -208,27 +210,45 @@ export default {
 
         let timestamp = Date.now();
         let hash: String = md5(cert.folio + timestamp);
-
+        
         const headers = {
-          'Authorization': 'Bearer de88c0759fd25678a57979ae9fc2aa7165ed0614',
+          //'Authorization': 'Bearer de88c0759fd25678a57979ae9fc2aa7165ed0614',
           "Access-Control-Allow-Origin": "*",
           "Content-Type": "application/json",
           'Access-Control-Allow-Credentials': true
         };
-        const dataString = `{ "long_url": "https://extercontrol.github.io/wa/validador/index.html?hash=${hash}" }`;
+        //const dataString = `{ "long_url": "https://extercontrol.github.io/wa/validador/index.html?hash=${hash}" }`;
+        const dataString = { "url": `https://extercontrol.github.io/wa/validador/index.html?hash=${hash}` };
 
         const requestOptions = {
           method: "POST",
           headers: headers,
           body: dataString
         } as unknown as RequestInit;
+
+        let postUrl = 'https://certificados-old.onrender.com/appscript/shorturl';
+        //let postUrl = 'http://localhost:8080/appscript/shorturl';
+        await axios.post(postUrl, dataString, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': 'true',
+            'Content-Type': 'application/json',
+          },
+        }).then(response => {
+          console.log(response.data);
+          certificadosARegistrar.push([hash, cert.folio, cert.cliente, cert.domicilio, cert.localidad, cert.fecha, texto.toUpperCase(), cert.areas, timestamp, response.data.data.tiny_url]);//data.link]);
+          console.log(response.data.data.tiny_url)
+        }).catch(e => {
+          console.log(e);
+        })
         
-        await fetch("https://api-ssl.bitly.com/v4/shorten", requestOptions)
+        //await fetch("https://api-ssl.bitly.com/v4/shorten", requestOptions)
+        /*await fetch("https://api.tinyurl.com/create?api_token=ng891PnwmB0HXOOBYDoK0icXT99afd22rifc1FAXKla0ywUm7B1oLViucqjk", requestOptions)
           .then(response => response.json())
           .then(function (data) {
-            certificadosARegistrar.push([hash, cert.folio, cert.cliente, cert.domicilio, cert.localidad, cert.fecha, texto.toUpperCase(), cert.areas, timestamp, data.link]);
+            certificadosARegistrar.push([hash, cert.folio, cert.cliente, cert.domicilio, cert.localidad, cert.fecha, texto.toUpperCase(), cert.areas, timestamp, data.alias]);//data.link]);
             console.log(data);
-          });
+          });*/
           //certificadosARegistrar.push([hash, cert.folio, cert.cliente, cert.domicilio, cert.localidad, cert.fecha, texto.toUpperCase(), cert.areas, timestamp, "example.com"]);
       }
       console.log(JSON.stringify(certificadosARegistrar));
@@ -247,14 +267,13 @@ export default {
           'Content-Type': 'application/json',
         },
       }).then(response => {
+        for (let cert of certificadosARegistrar) {
+          this.creaDocumento({ folio: cert[1], cliente: cert[2], domicilio: cert[3], localidad: cert[4], fecha: cert[5], tratamiento: cert[6], areas: cert[7], short_url: cert[9] });
+        }
         console.log(response.data);
       }).catch(e => {
         console.log(e);
       })
-      
-      for (let cert of certificadosARegistrar) {
-        this.creaDocumento({ folio: cert[1], cliente: cert[2], domicilio: cert[3], localidad: cert[4], fecha: cert[5], tratamiento: cert[6], areas: cert[7], short_url: cert[9] });
-      }
 
       //Returns button to enabled
       this.isGeneratingCerts = false;
