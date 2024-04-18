@@ -10,6 +10,8 @@ import { qrCodeF } from "./models/qrcodestyling_model";
 // @ts-ignore
 import { createReport } from 'https://unpkg.com/docx-templates/lib/browser.js';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const baseURL = ref('');
 
 onMounted(() => {
@@ -116,8 +118,7 @@ export default {
     obtieneInfoCerts() {
       if (this.listaCerts === "") return;
       //let getUrl = 'https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxX9BpWftZWtyXxOGsIW3PTVlpXLq1Xl4m9VpQxAjUolFlK3fxTqUSE38FdTwxx6aBw/exec';
-      let getUrl = 'https://certificados-old.onrender.com/appscript/getdata';
-      //let getUrl = 'http://localhost:8080/appscript/getdata';
+      let getUrl = apiBaseUrl + '/appscript/getdata';
       let encodedData = JSON.stringify(this.prepararBusqueda(this.listaCerts));
       encodedData = encodeURIComponent(encodedData.replaceAll('\\"',''));
       const urlWithParams = getUrl + "?data=" + encodedData;
@@ -226,8 +227,7 @@ export default {
           body: dataString
         } as unknown as RequestInit;
 
-        let postUrl = 'https://certificados-old.onrender.com/appscript/shorturl';
-        //let postUrl = 'http://localhost:8080/appscript/shorturl';
+        let postUrl = apiBaseUrl + '/appscript/shorturl';
         await axios.post(postUrl, dataString, {
           headers: {
             'Access-Control-Allow-Origin': '*',
@@ -242,20 +242,10 @@ export default {
           console.log(e);
         })
         
-        //await fetch("https://api-ssl.bitly.com/v4/shorten", requestOptions)
-        /*await fetch("https://api.tinyurl.com/create?api_token=ng891PnwmB0HXOOBYDoK0icXT99afd22rifc1FAXKla0ywUm7B1oLViucqjk", requestOptions)
-          .then(response => response.json())
-          .then(function (data) {
-            certificadosARegistrar.push([hash, cert.folio, cert.cliente, cert.domicilio, cert.localidad, cert.fecha, texto.toUpperCase(), cert.areas, timestamp, data.alias]);//data.link]);
-            console.log(data);
-          });*/
-          //certificadosARegistrar.push([hash, cert.folio, cert.cliente, cert.domicilio, cert.localidad, cert.fecha, texto.toUpperCase(), cert.areas, timestamp, "example.com"]);
       }
       console.log(JSON.stringify(certificadosARegistrar));
 
-      //let postUrl = 'https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxwT4aWTalaghbJhxfi3GMBRjSJRjwFmgmDNOU1Nw0-jWH-aivh07kLPmwCaW5D6wOr/exec';
-      let postUrl = 'https://certificados-old.onrender.com/appscript/submitdata';
-      //let postUrl = 'http://localhost:8080/appscript/submitdata';
+      let postUrl = apiBaseUrl + '/appscript/submitdata';
       let encodedData = JSON.stringify(certificadosARegistrar);
       encodedData = encodeURIComponent(encodedData.replaceAll('\\"',''));
       const urlWithParams = postUrl + "?data=" + encodedData;
@@ -298,8 +288,7 @@ export default {
       });
     },
     obtieneUltimoFolio() {
-      let getUrl = 'https://certificados-old.onrender.com/appscript/getlast';
-      //let getUrl = 'http://localhost:8080/appscript/getlast';
+      let getUrl = apiBaseUrl + '/appscript/getlast';
       axios.get(getUrl, {
         headers: {
           'Access-Control-Allow-Origin': '*',
