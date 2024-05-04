@@ -46,7 +46,7 @@ export default {
   },
   data() {
     return {
-      appVersion: '0.2.2',
+      appVersion: '0.3.0',
       res: '',
       folioInicial: "" as string,
       listaCerts: "",
