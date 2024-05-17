@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import Accordion from "./components/Accordion.vue";
 import AccordionItem from "./components/AccordionItem.vue";
 import CamposComunes from "./components/CamposComunes.vue";
-import axios, { isCancel, AxiosError } from 'axios';
+import axios from 'axios';
 import md5 from 'md5'
 
 import { qrCodeF } from "./models/qrcodestyling_model";
@@ -105,7 +105,6 @@ export default {
       a.download = fileName;
       document.body.appendChild(a);
       a.setAttribute('style', 'display: none');
-      //a.style = 'display: none';
       a.click();
       a.remove();
     },
@@ -117,7 +116,6 @@ export default {
     },
     obtieneInfoCerts() {
       if (this.listaCerts === "") return;
-      //let getUrl = 'https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxX9BpWftZWtyXxOGsIW3PTVlpXLq1Xl4m9VpQxAjUolFlK3fxTqUSE38FdTwxx6aBw/exec';
       let getUrl = apiBaseUrl + '/appscript/getdata';
       let encodedData = JSON.stringify(this.prepararBusqueda(this.listaCerts));
       encodedData = encodeURIComponent(encodedData.replaceAll('\\"',''));
@@ -210,7 +208,7 @@ export default {
 
 
         let timestamp = Date.now();
-        let hash: String = md5(cert.folio + timestamp);
+        let hash: string = md5(cert.folio + timestamp);
         
         const headers = {
           //'Authorization': 'Bearer de88c0759fd25678a57979ae9fc2aa7165ed0614',
@@ -218,14 +216,7 @@ export default {
           "Content-Type": "application/json",
           'Access-Control-Allow-Credentials': true
         };
-        //const dataString = `{ "long_url": "https://extercontrol.github.io/wa/validador/index.html?hash=${hash}" }`;
         const dataString = { "url": `https://extercontrol.github.io/wa/validador/index.html?hash=${hash}` };
-
-        const requestOptions = {
-          method: "POST",
-          headers: headers,
-          body: dataString
-        } as unknown as RequestInit;
 
         let postUrl = apiBaseUrl + '/appscript/shorturl';
         await axios.post(postUrl, dataString, {
@@ -317,15 +308,22 @@ export default {
 </script>
 
 <template>
-  <img src="./assets/controlExter_logo.svg" alt="" id="logo">
-  <h1>Certificados 0.1 <span :style="spanStyle">⬤</span></h1>
+  <header>
+    <img src="./assets/controlExter_logo.svg" alt="" id="logo">
+    <div>
+      <h1>Generador de Certificados <span :style="spanStyle">⬤</span></h1>
+    </div>
+  </header>
 
   <fieldset id="buscador-fields">
-    <label for="buscador">Generar a partir de: </label>
-    <input type="text" placeholder="Usa / como rango y , como separador" id="buscador" name="buscador"
-      v-model="listaCerts">
-    <label for="folio_inicial">Folio inicial: </label>
-    <input type="text" placeholder="nnn-AAAA" id="folio_inicial" name="folio_inicial" v-model="folioInicial">
+    <div class="named-field">
+      <label for="buscador">Generar a partir de:</label>
+      <input type="text" placeholder="Usa / como rango y , como separador" id="buscador" name="buscador" v-model="listaCerts">
+    </div>
+    <div class="named-field">
+      <label for="folio_inicial">Folio inicial: </label>
+      <input type="text" placeholder="nnn-AAAA" id="folio_inicial" name="folio_inicial" v-model="folioInicial">
+    </div>
     <button type="submit" @click="obtieneInfoCerts"><span class="mdi mdi-magnify"></span> Buscar</button>
   </fieldset>
   <div>
@@ -357,7 +355,7 @@ export default {
   </div>
 
   <button id="boton-generar" @click="generaCertificados" type="submit" v-bind:disabled="isGeneratingCerts"><span
-      class="mdi mdi-file-sign"></span>Generar</button>
+      class="mdi mdi-file-sign"></span> Generar</button>
   
   <!-- Loading popup -->
   <div v-if="loading" class="loading-popup">
@@ -370,8 +368,28 @@ export default {
 </template>
 
 <style>
+@import "style.css";
+
+header{
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 50px;
+}
+
+#logo{margin: 0;}
+
 label {
   padding-right: 5px;
+}
+
+.named-field{
+  display: flex;
+  align-items: baseline;
+}
+
+.named-field label{
+  min-width: 190px;
 }
 
 .Accordion {
@@ -400,7 +418,7 @@ label {
 }
 
 #logo {
-  width: 350px;
+  width: 250px;
 }
 
 .loading-popup {
@@ -422,31 +440,57 @@ label {
         font-weight: 800;
     }
 
+#boton-generar {
+
+  margin-top: 10px;
+}
+
+input[type="text"], select, select[multiple], textarea{
+  width: 400px;
+}
+
 @media (max-width:767px) {
   #logo {
     width: 70%;
   }
 
-  #buscador {
+  #buscador, #folio_inicial{
     width: 100%;
   }
 
   #boton-generar {
-    width: 100%
+    width: 100%;
   }
 
   button span {
     padding: 0 5px;
   }
 
-  input[type="text"],
-  select,
-  textarea {
+  input[type="text"], select, select[multiple], textarea {
     width: 300px;
   }
 
   label {
     margin-bottom: 0;
   }
+
+  .named-field{
+    display: block;
+    align-items: baseline;
+  }
+
+  header{display: block;}
+
+  .named-field label{
+    /* min-width: 190px; */
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #181818;
+    color: white;
+  }
+  h1{color:white}
 }
 </style>
